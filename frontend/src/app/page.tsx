@@ -135,7 +135,7 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">
               Explore by <span className="text-primary">category</span>
             </h2>
-            <Link href="/categories" className="hidden md:flex items-center gap-2 text-primary font-medium hover:underline">
+            <Link href="/jobs" className="hidden md:flex items-center gap-2 text-primary font-medium hover:underline">
               Show all jobs <ArrowRight size={16} />
             </Link>
           </div>
@@ -174,7 +174,7 @@ export default function Home() {
               </Link>
             ))}
           </div>
-          <Link href="/categories" className="mt-8 flex md:hidden items-center justify-center gap-2 text-primary font-medium">
+          <Link href="/jobs" className="mt-8 flex md:hidden items-center justify-center gap-2 text-primary font-medium">
             Show all jobs <ArrowRight size={16} />
           </Link>
         </div>
