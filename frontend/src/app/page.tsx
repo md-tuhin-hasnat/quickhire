@@ -11,6 +11,7 @@ export default function Home() {
   const [searchTitle, setSearchTitle] = useState('');
   const [searchLocation, setSearchLocation] = useState('');
   const [featuredJobs, setFeaturedJobs] = useState<any[]>([]);
+  const [latestJobs, setLatestJobs] = useState<any[]>([]);
   const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
   const [loadingTopSection, setLoadingTopSection] = useState(true);
 
@@ -22,6 +23,7 @@ export default function Home() {
         if (data.success) {
           const jobs = data.data;
           setFeaturedJobs(jobs.slice(0, 4));
+          setLatestJobs(jobs.slice(0, 8));
 
           // Calculate category counts
           const counts: Record<string, number> = {};
@@ -290,56 +292,27 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="col-span-1">
-              <JobCard
-                id="5"
-                title="Social Media Assistant"
-                company="Nomad"
-                location="Paris, France"
-                type="Full Time"
-                description="Nomad is looking for a Social Media Assistant."
-                tags={['Marketing', 'Design']}
-                logoBg="bg-emerald-500 text-white"
-              />
+          {loadingTopSection ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary"></div>
             </div>
-            <div className="col-span-1">
-              <JobCard
-                id="6"
-                title="Brand Designer"
-                company="Maze"
-                location="San Francisco, USA"
-                type="Full Time"
-                description="Maze is looking for a Brand Designer."
-                tags={['Design', 'Business']}
-                logoBg="bg-indigo-600 text-white"
-              />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {latestJobs.map((job: any) => (
+                <JobCard
+                  key={job._id}
+                  id={job._id}
+                  title={job.title}
+                  company={job.company}
+                  location={job.location}
+                  type={job.type}
+                  tags={[job.category]}
+                  logoBg="bg-blue-600 text-white"
+                  layout="horizontal"
+                />
+              ))}
             </div>
-            <div className="col-span-1">
-              <JobCard
-                id="7"
-                title="Interactive Developer"
-                company="Terraform"
-                location="Hamburg, Germany"
-                type="Full Time"
-                description="Terraform is looking for Interactive Developer."
-                tags={['Engineering', 'Design']}
-                logoBg="bg-cyan-500 text-white"
-              />
-            </div>
-            <div className="col-span-1">
-              <JobCard
-                id="8"
-                title="HR Manager"
-                company="Packer"
-                location="Lucerne, Switzerland"
-                type="Full Time"
-                description="Packer is looking for an HR Manager."
-                tags={['Marketing', 'Management']}
-                logoBg="bg-red-500 text-white"
-              />
-            </div>
-          </div>
+          )}
           <div className="mt-12 text-center">
             <Link href="/jobs" className="inline-flex items-center justify-center px-8 py-3.5 border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-white hover:border-gray-300 transition shadow-sm bg-gray-50">
               View All Jobs
