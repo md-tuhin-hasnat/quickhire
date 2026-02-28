@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Search, MapPin, ArrowRight, PenTool, Database, Briefcase, FileCode, Landmark, DollarSign, Calculator, Users } from 'lucide-react';
@@ -10,6 +10,25 @@ export default function Home() {
   const router = useRouter();
   const [searchTitle, setSearchTitle] = useState('');
   const [searchLocation, setSearchLocation] = useState('');
+  const [featuredJobs, setFeaturedJobs] = useState<any[]>([]);
+  const [loadingFeatured, setLoadingFeatured] = useState(true);
+
+  useEffect(() => {
+    const fetchFeaturedJobs = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/jobs');
+        const data = await res.json();
+        if (data.success) {
+          setFeaturedJobs(data.data.slice(0, 4));
+        }
+      } catch (error) {
+        console.error('Error fetching featured jobs:', error);
+      } finally {
+        setLoadingFeatured(false);
+      }
+    };
+    fetchFeaturedJobs();
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -219,52 +238,28 @@ export default function Home() {
               View all jobs <ArrowRight size={16} />
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <JobCard
-              id="1"
-              title="Email Marketing"
-              company="Revolut"
-              location="Madrid, Spain"
-              type="Full Time"
-              description="Revolut is looking for Email Marketing to help our team grow."
-              tags={['Marketing', 'Design']}
-              logoBg="bg-slate-900 text-white"
-              featured={true}
-            />
-            <JobCard
-              id="2"
-              title="Brand Designer"
-              company="Dropbox"
-              location="San Francisco, USA"
-              type="Full Time"
-              description="Dropbox is looking for Brand Designer to help the team."
-              tags={['Design', 'Business']}
-              logoBg="bg-blue-600 text-white"
-              featured={true}
-            />
-            <JobCard
-              id="3"
-              title="Email Marketing"
-              company="Pitch"
-              location="Berlin, Germany"
-              type="Full Time"
-              description="Pitch is looking for Email Marketing to help the team."
-              tags={['Marketing']}
-              logoBg="bg-black text-white"
-              featured={true}
-            />
-            <JobCard
-              id="4"
-              title="Visual Designer"
-              company="Blinkist"
-              location="Granada, Spain"
-              type="Full Time"
-              description="Blinkist is looking for Visual Designer to help our team."
-              tags={['Design']}
-              logoBg="bg-teal-500 text-white"
-              featured={true}
-            />
-          </div>
+          {loadingFeatured ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredJobs.map(job => (
+                <JobCard
+                  key={job._id}
+                  id={job._id}
+                  title={job.title}
+                  company={job.company}
+                  location={job.location}
+                  type={job.type}
+                  description={job.description}
+                  tags={[job.category]}
+                  logoBg="bg-blue-600 text-white"
+                  featured={true}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
