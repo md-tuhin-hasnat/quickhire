@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, MapPin, Building2, Clock, DollarSign, Calendar, Target } from 'lucide-react';
 import { useParams } from 'next/navigation';
@@ -9,34 +9,46 @@ export default function JobDetailPage() {
     const params = useParams();
     const id = params.id as string;
 
-    // Mock job data (since backend is not connected yet)
-    const job = {
-        title: 'Brand Designer',
-        company: 'Dropbox',
-        location: 'San Francisco, USA',
-        type: 'Full Time',
-        category: 'Design',
-        salary: '$100k - $130k',
-        posted_at: '2 days ago',
-        description: `
-      <p>We are looking for a highly skilled Brand Designer to join our team at Dropbox. You will be responsible for creating visual concepts to communicate ideas that inspire, inform, and captivate our target audience.</p>
-      <br/>
-      <h3 className="text-xl font-semibold mb-2">What you will do:</h3>
-      <ul className="list-disc pl-5 mb-4 space-y-2 relative">
-        <li>Work closely with the marketing team to design assets for campaigns, social media, and the website.</li>
-        <li>Help shape the visual identity of Dropbox across various mediums.</li>
-        <li>Create high-quality design work that aligns with our brand guidelines.</li>
-        <li>Present design concepts to stakeholders and gather feedback for iterative improvement.</li>
-      </ul>
-      <br/>
-      <h3 className="text-xl font-semibold mb-2">Requirements:</h3>
-      <ul className="list-disc pl-5 mb-4 space-y-2">
-        <li>3+ years of experience in brand or visual design.</li>
-        <li>Strong portfolio showcasing branding, typography, and illustration skills.</li>
-        <li>Proficiency in Figma, Adobe Creative Suite (Illustrator, Photoshop).</li>
-        <li>Excellent communication and presentation skills.</li>
-      </ul>
-    `
+    interface Job {
+        _id: string;
+        title: string;
+        company: string;
+        location: string;
+        type: string;
+        category: string;
+        description: string;
+        created_at: string;
+        salary?: string;
+    }
+
+    const [job, setJob] = useState<Job | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchJob = async () => {
+            try {
+                const res = await fetch(`http://localhost:5000/api/jobs/${id}`);
+                const data = await res.json();
+                if (data.success) {
+                    setJob(data.data);
+                }
+            } catch (error) {
+                console.error('Error fetching job details:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (id) {
+            fetchJob();
+        }
+    }, [id]);
+
+    // Format date fallback helper
+    const formatDate = (dateString?: string) => {
+        if (!dateString) return 'Recently';
+        const d = new Date(dateString);
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     };
 
     const [formData, setFormData] = useState({
@@ -71,7 +83,7 @@ export default function JobDetailPage() {
                 </div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-4">Application Submitted!</h1>
                 <p className="text-gray-600 text-center max-w-md mb-8">
-                    Thank you for applying to the {job.title} position at {job.company}. We have received your application and will be in touch soon.
+                    Thank you for applying to the {job?.title} position at {job?.company}. We have received your application and will be in touch soon.
                 </p>
                 <Link href="/" className="px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary-hover transition">
                     Back to Jobs
@@ -80,10 +92,27 @@ export default function JobDetailPage() {
         );
     }
 
+    if (loading) {
+        return (
+            <div className="bg-gray-50 min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            </div>
+        );
+    }
+
+    if (!job && !loading) {
+        return (
+            <div className="bg-gray-50 min-h-screen flex flex-col items-center justify-center">
+                <h1 className="text-2xl font-bold text-gray-900 mb-4">Job not found</h1>
+                <Link href="/jobs" className="text-primary hover:underline">Return to job listings</Link>
+            </div>
+        );
+    }
+
     return (
         <div className="bg-gray-50 min-h-screen py-8">
             <div className="container mx-auto px-4 md:px-6">
-                <Link href="/" className="inline-flex items-center gap-2 text-gray-500 hover:text-primary mb-8 font-medium transition-colors">
+                <Link href="/jobs" className="inline-flex items-center gap-2 text-gray-500 hover:text-primary mb-8 font-medium transition-colors">
                     <ArrowLeft size={16} /> Back to all jobs
                 </Link>
 
@@ -94,28 +123,28 @@ export default function JobDetailPage() {
                         <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm mb-8">
                             <div className="flex items-center gap-4 mb-6">
                                 <div className="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center text-white text-2xl font-bold">
-                                    {job.company.charAt(0)}
+                                    {job?.company?.[0] || <Building2 size={24} />}
                                 </div>
                                 <div>
-                                    <h1 className="text-3xl font-bold text-gray-900 mb-1">{job.title}</h1>
+                                    <h1 className="text-3xl font-bold text-gray-900 mb-1">{job?.title}</h1>
                                     <p className="text-gray-500 text-lg flex items-center gap-2">
-                                        <Building2 size={18} /> {job.company}
+                                        <Building2 size={18} /> {job?.company}
                                     </p>
                                 </div>
                             </div>
 
                             <div className="flex flex-wrap items-center gap-4 py-6 border-y border-gray-100 mb-8">
                                 <div className="flex items-center gap-2 text-gray-600 bg-gray-50 px-4 py-2 rounded-lg">
-                                    <MapPin size={18} className="text-primary" /> {job.location}
+                                    <MapPin size={18} className="text-primary" /> {job?.location}
                                 </div>
                                 <div className="flex items-center gap-2 text-gray-600 bg-gray-50 px-4 py-2 rounded-lg">
-                                    <Clock size={18} className="text-primary" /> {job.type}
+                                    <Clock size={18} className="text-primary" /> {job?.type}
                                 </div>
                                 <div className="flex items-center gap-2 text-gray-600 bg-gray-50 px-4 py-2 rounded-lg">
-                                    <DollarSign size={18} className="text-primary" /> {job.salary}
+                                    <DollarSign size={18} className="text-primary" /> {job?.salary || 'Competitive'}
                                 </div>
                                 <div className="flex items-center gap-2 text-gray-600 bg-gray-50 px-4 py-2 rounded-lg">
-                                    <Calendar size={18} className="text-primary" /> {job.posted_at}
+                                    <Calendar size={18} className="text-primary" /> {formatDate(job?.created_at)}
                                 </div>
                             </div>
 
@@ -123,7 +152,7 @@ export default function JobDetailPage() {
                                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Job Description</h2>
                                 <div
                                     className="prose prose-blue max-w-none text-gray-600 leading-relaxed"
-                                    dangerouslySetInnerHTML={{ __html: job.description }}
+                                    dangerouslySetInnerHTML={{ __html: job?.description || '' }}
                                 />
                             </div>
                         </div>
