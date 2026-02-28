@@ -20,7 +20,7 @@ export default function JobCard({
     if (layout === 'horizontal') {
         return (
             <div className="bg-white p-6 border border-gray-100 transition-all duration-300 hover:shadow-md hover:-translate-y-1 flex flex-col sm:flex-row sm:items-center gap-6 relative group">
-                <div className={`w-14 h-14 shrink-0 rounded-xl flex items-center justify-center text-2xl font-bold ${logoBg}`}>
+                <div className={`w-14 h-14 shrink-0 flex items-center justify-center text-2xl font-bold ${logoBg}`}>
                     {company ? company.charAt(0).toUpperCase() : <Building2 className="text-gray-400" />}
                 </div>
                 <div className="flex-grow">
@@ -62,9 +62,9 @@ export default function JobCard({
     }
 
     return (
-        <div className={`relative group bg-white rounded-2xl p-6 border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col h-full ${featured ? 'border-primary/20 shadow-md' : 'border-gray-100'}`}>
+        <div className={`relative group bg-white p-6 border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col h-full ${featured ? 'border-primary/20 shadow-md' : 'border-gray-100'}`}>
             <div className="flex justify-between items-start mb-4">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold ${logoBg}`}>
+                <div className={`w-12 h-12 flex items-center justify-center text-xl font-bold ${logoBg}`}>
                     {/* Fallback to first letter of company, or Building icon if none */}
                     {company ? company.charAt(0).toUpperCase() : <Building2 className="text-gray-400" />}
                 </div>
