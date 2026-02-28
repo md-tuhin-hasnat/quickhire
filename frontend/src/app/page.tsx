@@ -11,23 +11,35 @@ export default function Home() {
   const [searchTitle, setSearchTitle] = useState('');
   const [searchLocation, setSearchLocation] = useState('');
   const [featuredJobs, setFeaturedJobs] = useState<any[]>([]);
-  const [loadingFeatured, setLoadingFeatured] = useState(true);
+  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
+  const [loadingTopSection, setLoadingTopSection] = useState(true);
 
   useEffect(() => {
-    const fetchFeaturedJobs = async () => {
+    const fetchHomeData = async () => {
       try {
         const res = await fetch('http://localhost:5000/api/jobs');
         const data = await res.json();
         if (data.success) {
-          setFeaturedJobs(data.data.slice(0, 4));
+          const jobs = data.data;
+          setFeaturedJobs(jobs.slice(0, 4));
+
+          // Calculate category counts
+          const counts: Record<string, number> = {};
+          jobs.forEach((job: any) => {
+            if (job.category) {
+              const catName = job.category.toLowerCase();
+              counts[catName] = (counts[catName] || 0) + 1;
+            }
+          });
+          setCategoryCounts(counts);
         }
       } catch (error) {
-        console.error('Error fetching featured jobs:', error);
+        console.error('Error fetching home data:', error);
       } finally {
-        setLoadingFeatured(false);
+        setLoadingTopSection(false);
       }
     };
-    fetchFeaturedJobs();
+    fetchHomeData();
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -142,37 +154,40 @@ export default function Home() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: PenTool, name: 'Design', count: '235', active: false },
-              { icon: Database, name: 'Sales', count: '78', active: false },
-              { icon: Briefcase, name: 'Marketing', count: '140', active: true },
-              { icon: DollarSign, name: 'Finance', count: '325', active: false },
-              { icon: FileCode, name: 'Technology', count: '436', active: false },
-              { icon: Calculator, name: 'Engineering', count: '542', active: false },
-              { icon: Briefcase, name: 'Business', count: '211', active: false },
-              { icon: Users, name: 'Human Resource', count: '346', active: false },
-            ].map((cat, idx) => (
-              <Link
-                href={`/jobs?category=${cat.name}`}
-                key={idx}
-                className={`group p-6 rounded-2xl border transition-all duration-300 ${cat.active
-                  ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25 scale-[1.02]'
-                  : 'bg-white border-gray-100 hover:border-primary-light hover:shadow-md hover:-translate-y-1'
-                  }`}
-              >
-                <cat.icon
-                  size={32}
-                  className={`mb-4 ${cat.active ? 'text-white' : 'text-primary'}`}
-                  strokeWidth={1.5}
-                />
-                <h3 className={`text-xl font-bold mb-2 ${cat.active ? 'text-white' : 'text-gray-900'}`}>{cat.name}</h3>
-                <div className="flex items-center justify-between">
-                  <p className={cat.active ? 'text-white/80' : 'text-gray-500'}>
-                    {cat.count} jobs available
-                  </p>
-                  <ArrowRight size={18} className={`opacity-0 group-hover:opacity-100 transition-opacity ${cat.active ? 'text-white' : 'text-primary'}`} />
-                </div>
-              </Link>
-            ))}
+              { icon: PenTool, name: 'Design', active: false },
+              { icon: Database, name: 'Sales', active: false },
+              { icon: Briefcase, name: 'Marketing', active: true },
+              { icon: DollarSign, name: 'Finance', active: false },
+              { icon: FileCode, name: 'Technology', active: false },
+              { icon: Calculator, name: 'Engineering', active: false },
+              { icon: Briefcase, name: 'Business', active: false },
+              { icon: Users, name: 'Human Resource', active: false },
+            ].map((cat, idx) => {
+              const count = categoryCounts[cat.name.toLowerCase()] || 0;
+              return (
+                <Link
+                  href={`/jobs?category=${cat.name}`}
+                  key={idx}
+                  className={`group p-6 rounded-2xl border transition-all duration-300 ${cat.active
+                    ? 'bg-primary border-primary text-white shadow-lg shadow-primary/25 scale-[1.02]'
+                    : 'bg-white border-gray-100 hover:border-primary-light hover:shadow-md hover:-translate-y-1'
+                    }`}
+                >
+                  <cat.icon
+                    size={32}
+                    className={`mb-4 ${cat.active ? 'text-white' : 'text-primary'}`}
+                    strokeWidth={1.5}
+                  />
+                  <h3 className={`text-xl font-bold mb-2 ${cat.active ? 'text-white' : 'text-gray-900'}`}>{cat.name}</h3>
+                  <div className="flex items-center justify-between">
+                    <p className={cat.active ? 'text-white/80' : 'text-gray-500'}>
+                      {count} {count === 1 ? 'job' : 'jobs'} available
+                    </p>
+                    <ArrowRight size={18} className={`opacity-0 group-hover:opacity-100 transition-opacity ${cat.active ? 'text-white' : 'text-primary'}`} />
+                  </div>
+                </Link>
+              )
+            })}
           </div>
           <Link href="/categories" className="mt-8 flex md:hidden items-center justify-center gap-2 text-primary font-medium">
             View all categories <ArrowRight size={16} />
@@ -238,7 +253,7 @@ export default function Home() {
               View all jobs <ArrowRight size={16} />
             </Link>
           </div>
-          {loadingFeatured ? (
+          {loadingTopSection ? (
             <div className="flex justify-center items-center py-12">
               <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary"></div>
             </div>
