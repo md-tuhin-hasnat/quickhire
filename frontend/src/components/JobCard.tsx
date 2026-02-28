@@ -30,18 +30,26 @@ export default function JobCard({
                             <span className="absolute inset-0" aria-hidden="true"></span>
                         </Link>
                     </h3>
-                    <p className="text-sm text-gray-500 mb-3">{company} • {location}</p>
-                    <div className="flex flex-wrap items-center gap-2">
-                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-primary border border-blue-100">
+                    <p className="text-sm text-gray-500 mb-3">{company}</p>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-2 mt-4">
+                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-600 border border-green-100">
                             {type}
                         </span>
+
+                        {/* Divider + Location in horizontal flow */}
+                        <div className="flex items-center gap-2 px-1 text-sm text-gray-500">
+                            <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                            <span>{location}</span>
+                            <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                        </div>
+
                         {tags.map((tag, idx) => (
                             <span
                                 key={idx}
-                                className={`px-3 py-1 rounded-full text-xs font-medium border ${tag.toLowerCase() === 'marketing' ? 'bg-orange-50 text-orange-600 border-orange-100' :
-                                    tag.toLowerCase() === 'design' ? 'bg-blue-50 text-blue-600 border-blue-100' :
-                                        tag.toLowerCase() === 'management' ? 'bg-purple-50 text-purple-600 border-purple-100' :
-                                            'bg-gray-50 text-gray-600 border-gray-100'
+                                className={`px-3 py-1 rounded-full text-xs font-medium border bg-white ${tag.toLowerCase() === 'marketing' ? 'text-orange-500 border-orange-200' :
+                                    tag.toLowerCase() === 'design' ? 'text-indigo-500 border-indigo-200' :
+                                        tag.toLowerCase() === 'management' ? 'text-purple-500 border-purple-200' :
+                                            'text-gray-500 border-gray-200'
                                     }`}
                             >
                                 {tag}
