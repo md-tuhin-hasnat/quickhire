@@ -1,79 +1,213 @@
-# QuickHire Job Board
+# QuickHire — Job Board
 
-QuickHire is a modern, premium job board application built with a Next.js frontend and an Express/MongoDB backend. This repository is structured as a monorepo.
+A modern, full-stack job board application built with **Next.js 15** (App Router) on the frontend and **Node.js / Express / MongoDB** on the backend.
+
+Live Demo: [job-board-frontend.vercel.app](https://job-board-frontend.vercel.app)
+Backend API: [job-board-backend-zeta.vercel.app](https://job-board-backend-zeta.vercel.app)
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Next.js 15 (App Router), React, TypeScript |
+| Styling | Tailwind CSS v4 |
+| Icons | Lucide React |
+| Backend | Node.js, Express 5 |
+| Database | MongoDB with Mongoose |
+| Validation | Zod |
+| Deployment | Vercel (frontend + backend) |
+| DB Hosting | MongoDB Atlas |
+
+---
 
 ## Project Structure
 
-- `frontend/` - Next.js 15 App Router, Tailwind CSS V4, Lucide Icons.
-- `backend/` - Node.js, Express, Mongoose (MVC Architecture), Zod Validation.
+```
+job-board/
+├── frontend/                   # Next.js App
+│   ├── public/images/          # Static assets (banner, logos)
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── page.tsx        # Home page (orchestrator)
+│   │   │   ├── jobs/           # Job listings + detail page
+│   │   │   ├── admin/          # Admin dashboard
+│   │   │   └── layout.tsx      # Root layout (Navbar + Footer)
+│   │   └── components/
+│   │       ├── JobCard.tsx     # Reusable job card (vertical + horizontal)
+│   │       ├── Navbar.tsx
+│   │       ├── Footer.tsx
+│   │       └── sections/       # Page section components
+│   │           ├── HeroSection.tsx
+│   │           ├── PartnersSection.tsx
+│   │           ├── CategoriesSection.tsx
+│   │           ├── PromoBanner.tsx
+│   │           ├── FeaturedJobs.tsx
+│   │           ├── LatestJobs.tsx
+│   │           └── AdminJobTable.tsx
+│   ├── .env.local              # Local env vars (not committed)
+│   └── .env.example            # Env var template
+│
+└── backend/                    # Express API
+    ├── models/
+    │   ├── Job.js
+    │   └── Application.js
+    ├── controllers/
+    │   ├── job.controller.js
+    │   └── application.controller.js
+    ├── routes/
+    │   ├── job.routes.js
+    │   └── application.routes.js
+    ├── config/db.js
+    ├── server.js
+    ├── seed.js                 # Database seeder
+    ├── vercel.json             # Vercel serverless config
+    ├── .env                    # Local env vars (not committed)
+    └── .env.example            # Env var template
+```
 
-## Prerequisites
+---
 
-- Node.js (v18+)
-- MongoDB (Local instance or Atlas URI)
+## Local Development Setup
 
-## Setup & Run Instructions
+### Prerequisites
+- Node.js v20+
+- MongoDB (local instance or Atlas URI)
 
-### 1. Backend Setup
+### 1. Clone the repo
+```bash
+git clone <repo-url>
+cd job-board
+```
 
-Navigate to the backend directory:
+### 2. Backend Setup
 ```bash
 cd backend
 npm install
 ```
 
-Create a `.env` file in the `backend/` directory with the following variables:
+Create a `.env` file:
 ```env
 PORT=5000
 MONGO_URI=mongodb://127.0.0.1:27017/quickhire
 ```
 
-Start the backend development server:
+Seed the database with sample jobs:
 ```bash
-npm run start
-# Or if you have nodemon: npx nodemon server.js
+node seed.js
 ```
-The server will run on `http://localhost:5000`.
 
-### 2. Frontend Setup
+Start the development server:
+```bash
+npm run dev
+```
+API will be available at `http://localhost:5000`
 
-Navigate to the frontend directory:
+### 3. Frontend Setup
 ```bash
 cd frontend
 npm install
 ```
 
-Create a `.env.local` file in the `frontend/` directory (optional, for connecting to the real backend later):
+Create a `.env.local` file:
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
 ```
 
-Start the Next.js development server:
+Start the development server:
 ```bash
 npm run dev
 ```
-The frontend will run on `http://localhost:3000`.
+App will be available at `http://localhost:3000`
 
-## Features Implemented
+---
 
-### Frontend (UI/UX)
-- High-fidelity implementation of the Figma design.
-- Fully responsive layouts (Mobile, Tablet, Desktop).
-- **Home Page**: Hero section, Partner Logos, Category Grid, Job Grids, Promo Banner.
-- **Job Detail Page**: Comprehensive job view with sticky "Apply Now" form.
-- **Admin Dashboard**: Basic interface to view active listings, post new jobs, and delete jobs.
-- **Components**: Reusable Navbar, Footer, and JobCard components.
-- **State**: Currently using React State to simulate seamless user interactions (application submission, job posting).
+## API Reference
 
-### Backend (API)
-- Clean MVC (Model-View-Controller) architecture.
-- Full Job CRUD endpoints (`GET /api/jobs`, `POST /api/jobs`, `DELETE /api/jobs/:id`).
-- Application submission endpoint (`POST /api/applications`).
-- Input validation using `zod`.
-- Centralized error handling.
+Base URL: `/api`
 
-## Next Steps for Production
-- Connect the simulated frontend states directly to the backend Axios/Fetch calls.
-- Add real authentication for the Admin panel.
-- Implement file uploads (e.g., AWS S3 or Cloudinary) for resumes instead of URL links.
-- Deploy (Vercel for frontend, Render/Railway for backend).
+### Jobs
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/jobs` | Get all jobs (supports `?search=`, `?category=`, `?location=`) |
+| `GET` | `/jobs/:id` | Get a single job by ID |
+| `POST` | `/jobs` | Create a new job |
+| `DELETE` | `/jobs/:id` | Delete a job |
+
+**POST `/jobs` — Request Body:**
+```json
+{
+  "title": "Senior Designer",
+  "company": "Acme Corp",
+  "location": "Remote",
+  "category": "Design",
+  "type": "Full Time",
+  "description": "Job description here..."
+}
+```
+
+### Applications
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/applications` | Submit a job application |
+
+---
+
+## Features
+
+- **Home Page** — Hero with search, company logos strip, category grid with live job counts, promo banner, featured and latest job listings
+- **Job Listings Page** — Browse all jobs with search, location and category filters
+- **Job Detail Page** — Full job description with sticky application form sidebar
+- **Admin Dashboard** — Live table of all jobs from the API; create and delete jobs with real-time updates and loading/error states
+- **Modular Architecture** — Each page section is an independent component in `src/components/sections/`
+- **Fully Responsive** — Mobile, tablet and desktop layouts
+
+---
+
+## Deployment (Vercel)
+
+Both the frontend and backend are deployed as separate Vercel projects.
+
+### Backend
+
+```bash
+cd backend
+vercel --prod
+vercel env add MONGO_URI production   # enter Atlas connection string
+vercel --prod                         # redeploy with env var
+```
+
+### Frontend
+
+```bash
+cd frontend
+vercel --prod
+vercel env add NEXT_PUBLIC_API_URL production   # enter https://<backend>.vercel.app/api
+vercel --prod                                   # redeploy with env var
+```
+
+### Seed Production Database
+
+```bash
+MONGO_URI="mongodb+srv://..." node backend/seed.js
+```
+
+---
+
+## Environment Variables
+
+### Backend (`.env`)
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `PORT` | Server port | `5000` |
+| `MONGO_URI` | MongoDB connection string | `mongodb://127.0.0.1:27017/quickhire` |
+
+### Frontend (`.env.local`)
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `NEXT_PUBLIC_API_URL` | Backend API base URL | `http://localhost:5000/api` |
