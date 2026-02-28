@@ -12,7 +12,7 @@ export default function Navbar() {
                     <span className="text-xl font-bold tracking-tight text-gray-900">QuickHire</span>
                 </Link>
                 <nav className="hidden md:flex gap-8 items-center">
-                    <Link href="/" className="text-gray-600 hover:text-primary font-medium transition-colors">Find Jobs</Link>
+                    <Link href="/jobs" className="text-gray-600 hover:text-primary font-medium transition-colors">Find Jobs</Link>
                     <Link href="/companies" className="text-gray-600 hover:text-primary font-medium transition-colors">Companies</Link>
                 </nav>
                 <div className="flex items-center gap-6">

@@ -17,7 +17,7 @@ export default function JobCard({
     id, title, company, location, type, description, tags, logoBg = 'bg-gray-100', featured = false
 }: JobCardProps) {
     return (
-        <div className={`group bg-white rounded-2xl p-6 border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col h-full ${featured ? 'border-primary/20 shadow-md' : 'border-gray-100'}`}>
+        <div className={`relative group bg-white rounded-2xl p-6 border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col h-full ${featured ? 'border-primary/20 shadow-md' : 'border-gray-100'}`}>
             <div className="flex justify-between items-start mb-4">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold ${logoBg}`}>
                     {/* Fallback to first letter of company, or Building icon if none */}
@@ -41,19 +41,27 @@ export default function JobCard({
                 </p>
             </div>
 
-            <div className="flex flex-wrap gap-2 mt-auto">
-                {tags.map((tag, idx) => (
-                    <span
-                        key={idx}
-                        className={`px-3 py-1 rounded-full text-xs font-medium border ${tag.toLowerCase() === 'marketing' ? 'bg-orange-50 text-orange-600 border-orange-100' :
+            <div className="mt-auto flex items-center justify-between pt-4">
+                <div className="flex flex-wrap gap-2">
+                    {tags.map((tag, idx) => (
+                        <span
+                            key={idx}
+                            className={`px-3 py-1 rounded-full text-xs font-medium border ${tag.toLowerCase() === 'marketing' ? 'bg-orange-50 text-orange-600 border-orange-100' :
                                 tag.toLowerCase() === 'design' ? 'bg-blue-50 text-blue-600 border-blue-100' :
                                     tag.toLowerCase() === 'management' ? 'bg-purple-50 text-purple-600 border-purple-100' :
                                         'bg-gray-50 text-gray-600 border-gray-100'
-                            }`}
-                    >
-                        {tag}
-                    </span>
-                ))}
+                                }`}
+                        >
+                            {tag}
+                        </span>
+                    ))}
+                </div>
+                <Link
+                    href={`/jobs/${id}`}
+                    className="relative z-10 whitespace-nowrap font-semibold text-primary hover:text-white flex items-center gap-1 text-sm bg-primary/10 hover:bg-primary px-4 py-2 rounded-xl transition-colors"
+                >
+                    See More
+                </Link>
             </div>
         </div>
     );

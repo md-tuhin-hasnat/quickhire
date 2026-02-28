@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Search, Filter } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { ArrowLeft, Search, Filter, MapPin } from 'lucide-react';
 import JobCard from '@/components/JobCard';
 
 interface Job {
@@ -16,33 +17,52 @@ interface Job {
 }
 
 export default function JobsPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div></div>}>
+            <JobsContent />
+        </Suspense>
+    );
+}
+
+function JobsContent() {
+    const searchParams = useSearchParams();
+    const initialSearch = searchParams.get('search') || '';
+    const initialCategory = searchParams.get('category') || '';
+    const initialLocation = searchParams.get('location') || '';
+
     const [jobs, setJobs] = useState<Job[]>([]);
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [categoryFilter, setCategoryFilter] = useState('');
+    const [searchTerm, setSearchTerm] = useState(initialSearch);
+    const [categoryFilter, setCategoryFilter] = useState(initialCategory);
+    const [locationFilter, setLocationFilter] = useState(initialLocation);
 
     useEffect(() => {
-        fetchJobs();
-    }, [searchTerm, categoryFilter]);
+        const fetchJobs = async () => {
+            setLoading(true);
+            try {
+                let url = 'http://localhost:5000/api/jobs?';
+                if (searchTerm) url += `search=${encodeURIComponent(searchTerm)}&`;
+                if (categoryFilter) url += `category=${encodeURIComponent(categoryFilter)}&`;
+                if (locationFilter) url += `location=${encodeURIComponent(locationFilter)}&`;
 
-    const fetchJobs = async () => {
-        setLoading(true);
-        try {
-            let url = 'http://localhost:5000/api/jobs?';
-            if (searchTerm) url += `search=${searchTerm}&`;
-            if (categoryFilter) url += `category=${categoryFilter}&`;
-
-            const res = await fetch(url);
-            const data = await res.json();
-            if (data.success) {
-                setJobs(data.data);
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data.success) {
+                    setJobs(data.data);
+                }
+            } catch (error) {
+                console.error('Error fetching jobs:', error);
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            console.error('Error fetching jobs:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+        };
+
+        const timeoutId = setTimeout(() => {
+            fetchJobs();
+        }, 300);
+
+        return () => clearTimeout(timeoutId);
+    }, [searchTerm, categoryFilter, locationFilter]);
 
     const categories = ['Design', 'Engineering', 'Marketing', 'Sales', 'Human Resource', 'Business'];
 
@@ -68,6 +88,21 @@ export default function JobsPage() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
                         />
+                    </div>
+                    <div className="md:w-64 relative">
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <select
+                            value={locationFilter}
+                            onChange={(e) => setLocationFilter(e.target.value)}
+                            className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition appearance-none bg-white font-sans text-gray-900 cursor-pointer"
+                        >
+                            <option value="">All Locations</option>
+                            <option value="Florence, Italy">Florence, Italy</option>
+                            <option value="New York, USA">New York, USA</option>
+                            <option value="London, UK">London, UK</option>
+                            <option value="San Francisco, USA">San Francisco, USA</option>
+                            <option value="Remote">Remote</option>
+                        </select>
                     </div>
                     <div className="md:w-64 relative">
                         <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
@@ -113,7 +148,7 @@ export default function JobsPage() {
                         <h3 className="text-xl font-bold text-gray-900 mb-2">No jobs found</h3>
                         <p className="text-gray-500">We couldn't find any jobs matching your criteria.</p>
                         <button
-                            onClick={() => { setSearchTerm(''); setCategoryFilter(''); }}
+                            onClick={() => { setSearchTerm(''); setCategoryFilter(''); setLocationFilter(''); }}
                             className="mt-6 px-6 py-2 bg-primary-light text-primary font-medium rounded-lg hover:bg-blue-100 transition"
                         >
                             Clear Filters
