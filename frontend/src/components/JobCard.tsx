@@ -19,7 +19,7 @@ export default function JobCard({
 }: JobCardProps) {
     if (layout === 'horizontal') {
         return (
-            <div className="bg-white rounded-xl p-6 border border-gray-100 transition-all duration-300 hover:shadow-md hover:-translate-y-1 flex flex-col sm:flex-row sm:items-center gap-6 relative group">
+            <div className="bg-white p-6 border border-gray-100 transition-all duration-300 hover:shadow-md hover:-translate-y-1 flex flex-col sm:flex-row sm:items-center gap-6 relative group">
                 <div className={`w-14 h-14 shrink-0 rounded-xl flex items-center justify-center text-2xl font-bold ${logoBg}`}>
                     {company ? company.charAt(0).toUpperCase() : <Building2 className="text-gray-400" />}
                 </div>
