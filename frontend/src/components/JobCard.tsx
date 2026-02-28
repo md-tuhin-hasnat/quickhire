@@ -36,8 +36,8 @@ export default function JobCard({
                     </Link>
                 </h3>
                 <p className="text-sm text-gray-500 mb-3">{company} • {location}</p>
-                <p className="text-sm text-gray-600 line-clamp-2">
-                    {description}
+                <p className="text-sm text-gray-600 line-clamp-2" title={description.replace(/(<([^>]+)>)/gi, "")}>
+                    {description.replace(/(<([^>]+)>)/gi, "")}
                 </p>
             </div>
 
