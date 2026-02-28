@@ -40,7 +40,7 @@ function JobsContent() {
         const fetchJobs = async () => {
             setLoading(true);
             try {
-                let url = 'http://localhost:5000/api/jobs?';
+                let url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/jobs?`;
                 if (searchTerm) url += `search=${encodeURIComponent(searchTerm)}&`;
                 if (categoryFilter) url += `category=${encodeURIComponent(categoryFilter)}&`;
                 if (locationFilter) url += `location=${encodeURIComponent(locationFilter)}&`;
